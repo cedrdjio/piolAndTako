@@ -3,93 +3,155 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const ROLES = [
-  { id: "traveler", label: "Voyageur", icon: "🧳", description: "Je cherche à réserver un logement ou un véhicule" },
-  { id: "host", label: "Hôte", icon: "🏠", description: "Je veux publier mes logements" },
-  { id: "vehicle_owner", label: "Loueur auto", icon: "🚗", description: "Je veux louer mes véhicules" },
+  { id: "traveler", label: "Voyageur", icon: "🧳", desc: "Je cherche des logements ou véhicules" },
+  { id: "host", label: "Hôte", icon: "🏠", desc: "Je propose des logements" },
+  { id: "vehicle_owner", label: "Loueur auto", icon: "🚗", desc: "Je loue des véhicules" },
 ];
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [role, setRole] = useState("traveler");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState("traveler");
+  const [error, setError] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => { setLoading(false); router.push("/dashboard"); }, 1000);
+    setError("");
+
+    const supabase = createClient();
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: `${firstName} ${lastName}`, phone, role },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+      },
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (data.user) {
+      await supabase.from("profiles").upsert({
+        id: data.user.id,
+        full_name: `${firstName} ${lastName}`,
+        phone,
+        role,
+      });
+      router.push("/dashboard");
+      router.refresh();
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <Link href="/" className="flex items-center gap-2 mb-8 justify-center">
+            <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold">P</span>
             </div>
-            <span className="font-bold text-2xl text-gray-900">piol<span className="text-emerald-600">And</span>Tako</span>
+            <span className="font-bold text-xl text-gray-900">
+              piol<span className="text-emerald-500">And</span>Tako
+            </span>
           </Link>
-          <h1 className="mt-6 text-2xl font-bold text-gray-900">Créer un compte</h1>
-          <p className="text-gray-500 text-sm mt-1">Rejoignez des milliers de Camerounais</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <div className="mb-6">
-            <p className="text-sm font-medium text-gray-700 mb-3">Je suis :</p>
-            <div className="grid grid-cols-3 gap-3">
-              {ROLES.map((r) => (
-                <button key={r.id} type="button" onClick={() => setRole(r.id)}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all text-center ${
-                    role === r.id ? "border-emerald-500 bg-emerald-50" : "border-gray-100 hover:border-gray-200"
-                  }`}>
-                  <span className="text-2xl">{r.icon}</span>
-                  <span className={`text-xs font-semibold ${role === r.id ? "text-emerald-700" : "text-gray-700"}`}>{r.label}</span>
-                </button>
-              ))}
-            </div>
+
+          <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Créer un compte</h1>
+          <p className="text-gray-500 text-center text-sm mb-6">Rejoignez la communauté piolAndTako</p>
+
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            {ROLES.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => setRole(r.id)}
+                className={`p-3 rounded-xl border-2 text-center transition-all ${
+                  role === r.id ? "border-emerald-500 bg-emerald-50" : "border-gray-100 hover:border-gray-200"
+                }`}
+              >
+                <div className="text-2xl mb-1">{r.icon}</div>
+                <div className="text-xs font-semibold text-gray-900">{r.label}</div>
+              </button>
+            ))}
           </div>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+          {error && (
+            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">{error}</div>
+          )}
+
+          <form onSubmit={handleRegister} className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Prénom</label>
-                <div className="relative"><User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><Input placeholder="Jean" className="pl-10" required /></div>
+                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Prénom</label>
+                <Input placeholder="Jean" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Nom</label><Input placeholder="Mbarga" required /></div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Nom</label>
+                <Input placeholder="Kamga" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-              <div className="relative"><Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><Input type="email" placeholder="vous@exemple.cm" className="pl-10" required /></div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Email</label>
+              <Input type="email" placeholder="vous@exemple.cm" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Téléphone</label>
-              <div className="relative"><Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" /><Input type="tel" placeholder="+237 6XX XXX XXX" className="pl-10" /></div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Téléphone</label>
+              <Input type="tel" placeholder="+237 6XX XXX XXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Mot de passe</label>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Mot de passe</label>
               <div className="relative">
-                <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <Input type={showPassword ? "text" : "password"} placeholder="Au moins 8 caractères" className="pl-10 pr-10" required />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Min. 8 caractères"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
-            <p className="text-xs text-gray-400">
-              En vous inscrivant, vous acceptez nos <Link href="/terms" className="text-emerald-600 hover:underline">conditions d&apos;utilisation</Link>{" "}et notre <Link href="/privacy" className="text-emerald-600 hover:underline">politique de confidentialité</Link>.
-            </p>
-            <Button type="submit" variant="primary" size="lg" className="w-full mt-1" disabled={loading}>
-              {loading ? "Création du compte..." : "Créer mon compte"}
+            <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+              {loading && <Loader2 size={16} className="animate-spin mr-2" />}
+              Créer mon compte
             </Button>
+            <p className="text-xs text-gray-400 text-center">
+              En vous inscrivant, vous acceptez nos{" "}
+              <Link href="/terms" className="text-emerald-600 hover:underline">CGU</Link>
+            </p>
           </form>
+
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-500">
+              Déjà un compte ?{" "}
+              <Link href="/auth/login" className="text-emerald-600 font-medium hover:underline">Se connecter</Link>
+            </p>
+          </div>
         </div>
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Déjà un compte ?{" "}<Link href="/auth/login" className="text-emerald-600 font-semibold hover:text-emerald-700">Se connecter</Link>
-        </p>
       </div>
     </div>
   );
