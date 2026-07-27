@@ -1,34 +1,41 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Quote } from "lucide-react";
+import { Container, Section, SectionHeading } from "@/components/ui/container";
+import { Avatar } from "@/components/ui/avatar";
+import { Rating } from "@/components/ui/rating";
+import { Reveal } from "@/components/motion/reveal";
 import { TESTIMONIALS } from "@/lib/constants";
 
-export default function Testimonials() {
+export function Testimonials() {
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Ce que disent nos clients</h2>
-          <p className="text-gray-500 max-w-xl mx-auto">Des milliers de voyageurs nous font confiance chaque mois.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <Section spacing="md">
+      <Container>
+        <SectionHeading
+          eyebrow="Ils nous font confiance"
+          title="Des milliers de voyageurs conquis"
+          description="La note moyenne de 4,9/5 dit tout. Voici ce qu'ils en pensent."
+        />
+
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
           {TESTIMONIALS.map((t, i) => (
-            <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-gray-50 rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
-              <div className="flex items-center gap-1 mb-4">
-                {Array.from({ length: 5 }).map((_, si) => (<Star key={si} size={16} className={si < t.rating ? "fill-amber-400 stroke-amber-400" : "stroke-gray-300"} />))}
-              </div>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6">&ldquo;{t.comment}&rdquo;</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">{t.name.charAt(0)}</span>
-                </div>
-                <div><p className="font-semibold text-gray-900 text-sm">{t.name}</p><p className="text-gray-400 text-xs">{t.location}</p></div>
-              </div>
-            </motion.div>
+            <Reveal key={t.id} delay={i * 80}>
+              <figure className="flex h-full flex-col gap-5 rounded-[var(--radius-xl)] border border-border bg-background p-7 shadow-[var(--shadow-sm)]">
+                <Quote className="size-8 text-brand/30" />
+                <blockquote className="flex-1 text-[0.95rem] leading-relaxed text-foreground">
+                  “{t.quote}”
+                </blockquote>
+                <Rating value={t.rating} variant="stars" />
+                <figcaption className="flex items-center gap-3 border-t border-border pt-5">
+                  <Avatar name={t.name} size={44} />
+                  <span>
+                    <span className="block font-semibold text-foreground">{t.name}</span>
+                    <span className="block text-sm text-muted-foreground">{t.role}</span>
+                  </span>
+                </figcaption>
+              </figure>
+            </Reveal>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

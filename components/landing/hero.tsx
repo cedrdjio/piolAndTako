@@ -1,53 +1,89 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Building2, Car, MapPin, Star } from "lucide-react";
-import SearchBar from "@/components/search/search-bar";
+import { useRef } from "react";
+import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { Sparkles } from "lucide-react";
+import { SearchPanel } from "@/components/search/search-panel";
+import { Container } from "@/components/ui/container";
+import { STATS } from "@/lib/constants";
 
-export default function Hero() {
-  const [activeTab, setActiveTab] = useState<"accommodation" | "vehicle">("accommodation");
+export function Hero() {
+  const scope = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      // Headline animates on transform only (opacity kept at 1) to protect LCP.
+      tl.from(".hero-title", { y: 22, duration: 0.7, stagger: 0.08 })
+        .from(".hero-fade", { y: 18, opacity: 0, duration: 0.6, stagger: 0.1 }, "-=0.4")
+        .from(".hero-orb", { scale: 0.6, opacity: 0, duration: 1.2, stagger: 0.15 }, 0);
+    },
+    { scope },
+  );
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-emerald-950" />
-      <div className="absolute inset-0 opacity-30" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23059669' fill-opacity='0.15'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }} />
-      <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl" />
-      <div className="relative z-10 container mx-auto px-4 lg:px-8 pt-24 pb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2 mb-6">
-            <Star size={14} className="text-emerald-400 fill-emerald-400" />
-            <span className="text-emerald-300 text-sm font-medium">#1 Plateforme de réservation au Cameroun</span>
-          </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-6">
-            Votre prochain séjour,{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">réservé en minutes</span>
-          </motion.h1>
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-lg sm:text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Logements meublés et véhicules disponibles dans toutes les grandes villes du Cameroun. Réservez en toute sécurité avec Mobile Money.
-          </motion.p>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-1 mb-8">
-            <button onClick={() => setActiveTab("accommodation")} className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === "accommodation" ? "bg-white text-gray-900 shadow-md" : "text-white/80 hover:text-white"}`}>
-              <Building2 size={16} />🏠 Hébergements
-            </button>
-            <button onClick={() => setActiveTab("vehicle")} className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${activeTab === "vehicle" ? "bg-white text-gray-900 shadow-md" : "text-white/80 hover:text-white"}`}>
-              <Car size={16} />🚗 Véhicules
-            </button>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-            <SearchBar mode={activeTab} />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }} className="flex flex-wrap items-center justify-center gap-6 mt-10 text-sm text-gray-400">
-            {[{ icon: MapPin, text: "6 villes couvertes" }, { icon: Building2, text: "5 000+ annonces" }, { icon: Star, text: "4.8/5 satisfaction" }].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5"><Icon size={14} className="text-emerald-400" /><span>{text}</span></div>
-            ))}
-          </motion.div>
+    <section ref={scope} className="bg-mesh relative overflow-hidden text-white">
+      {/* Ambient light + brand watermark */}
+      <div className="hero-orb pointer-events-none absolute -left-24 top-10 size-[420px] rounded-full bg-brand/25 blur-[120px]" />
+      <div className="hero-orb pointer-events-none absolute -right-20 bottom-0 size-[460px] rounded-full bg-brand/20 blur-[130px]" />
+      <Image
+        src="/brand/mark-white.png"
+        alt=""
+        width={728}
+        height={513}
+        aria-hidden
+        priority
+        className="hero-orb pointer-events-none absolute -right-16 top-1/2 w-[52%] max-w-2xl -translate-y-1/2 opacity-[0.06]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.15]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.6) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+          maskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%)",
+        }}
+      />
+
+      <Container className="relative pb-16 pt-28 sm:pb-24 sm:pt-36 lg:pb-28 lg:pt-44">
+        <div className="max-w-3xl">
+          <span className="hero-fade inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-sm font-medium text-white/90 backdrop-blur">
+            <Sparkles className="size-4 text-brand-100" />
+            La plateforme premium du Cameroun
+          </span>
+
+          <h1 className="mt-6 text-[2.6rem] font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem]">
+            <span className="hero-title block">Réservez l&apos;exception.</span>
+            <span className="hero-title block">
+              Vivez{" "}
+              <span className="bg-gradient-to-r from-brand-100 via-white to-brand-100 bg-clip-text text-transparent">
+                Piol &amp; Tako.
+              </span>
+            </span>
+          </h1>
+
+          <p className="hero-fade mt-6 max-w-xl text-lg leading-relaxed text-white/80">
+            Hébergements d&apos;exception, voitures de prestige et expériences uniques.
+            Tout au même endroit, réservé en quelques secondes.
+          </p>
         </div>
-      </div>
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 80" className="w-full" fill="white"><path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" /></svg>
-      </div>
+
+        <div className="hero-fade mt-10 max-w-4xl">
+          <SearchPanel />
+        </div>
+
+        <dl className="hero-fade mt-12 grid max-w-3xl grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">
+          {STATS.map((stat) => (
+            <div key={stat.label}>
+              <dt className="text-2xl font-bold sm:text-3xl">{stat.value}</dt>
+              <dd className="mt-1 text-sm text-white/70">{stat.label}</dd>
+            </div>
+          ))}
+        </dl>
+      </Container>
     </section>
   );
 }

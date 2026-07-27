@@ -4,38 +4,43 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold cursor-pointer select-none transition-[transform,background-color,box-shadow,color] duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-lg",
-        destructive: "bg-red-500 text-white hover:bg-red-600",
-        outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
-        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-        ghost: "hover:bg-gray-100 text-gray-700",
-        link: "text-emerald-600 underline-offset-4 hover:underline",
-        primary: "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl",
+        primary:
+          "bg-primary text-primary-foreground shadow-[var(--shadow-sm)] hover:bg-brand-600 hover:shadow-[var(--shadow-glow)]",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-[var(--shadow-sm)] hover:bg-navy-700",
+        outline:
+          "border border-border-strong bg-background text-foreground hover:bg-surface hover:border-brand/40",
+        ghost: "text-foreground hover:bg-surface-2",
+        subtle: "bg-brand-50 text-brand-700 hover:bg-brand-100",
+        link: "text-brand underline-offset-4 hover:underline px-0",
+        destructive: "bg-danger text-white hover:brightness-95 shadow-[var(--shadow-sm)]",
       },
       size: {
-        default: "h-10 px-5 py-2",
-        sm: "h-8 px-3 text-xs",
-        lg: "h-12 px-8 text-base",
-        xl: "h-14 px-10 text-lg",
-        icon: "h-10 w-10",
+        sm: "h-9 rounded-[var(--radius-sm)] px-4 text-[0.8125rem]",
+        default: "h-11 rounded-[var(--radius-md)] px-5 text-sm",
+        lg: "h-12 rounded-[var(--radius-md)] px-7 text-[0.95rem]",
+        xl: "h-14 rounded-[var(--radius-lg)] px-8 text-base",
+        icon: "size-11 rounded-[var(--radius-md)]",
+        "icon-sm": "size-9 rounded-[var(--radius-sm)]",
       },
     },
-    defaultVariants: { variant: "default", size: "default" },
-  }
+    defaultVariants: { variant: "primary", size: "default" },
+  },
 );
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> { asChild?: boolean; }
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
-  }
-);
-Button.displayName = "Button";
+function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
+  const Comp = asChild ? Slot : "button";
+  return <Comp className={cn(buttonVariants({ variant, size }), className)} {...props} />;
+}
 
 export { Button, buttonVariants };
