@@ -37,10 +37,16 @@ function parse(sp: RawParams): SearchParams {
   };
 }
 
+const ALL_LABEL: Record<string, string> = {
+  property: "Tous les logements",
+  car: "Toutes les voitures",
+  experience: "Toutes les expériences",
+};
+
 function headline(params: SearchParams): string {
   const vertical = VERTICALS.find((v) => v.id === params.category);
-  const noun = vertical ? vertical.label.toLowerCase() : "annonces";
-  return params.city ? `${vertical?.label ?? "Résultats"} à ${params.city}` : `Tous les ${noun}`;
+  if (params.city) return `${vertical?.label ?? "Résultats"} à ${params.city}`;
+  return params.category ? (ALL_LABEL[params.category] ?? "Toutes les annonces") : "Toutes les annonces";
 }
 
 export default async function SearchPage({
