@@ -185,6 +185,7 @@ export default async function ListingPage({
               <CoverImage
                 seed={listing.id}
                 category={listing.category}
+                src={listing.images[v]}
                 alt={`${listing.title} — vue ${v}`}
                 variant={v}
                 sizes="25vw"

@@ -3,6 +3,7 @@ import { Container, Section, SectionHeading } from "@/components/ui/container";
 import { CoverImage } from "@/components/ui/cover-image";
 import { Reveal } from "@/components/motion/reveal";
 import { CITIES } from "@/lib/constants";
+import { unsplash } from "@/lib/images";
 
 export function Destinations() {
   return (
@@ -24,6 +25,7 @@ export function Destinations() {
                 <CoverImage
                   seed={`city-${city.id}`}
                   category="property"
+                  src={unsplash(city.image, 600)}
                   alt={`Logements à ${city.name}`}
                   sizes="(max-width: 768px) 45vw, 200px"
                   className="size-full transition-transform duration-[600ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110"

@@ -1,15 +1,18 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { Car, Compass, Home } from "lucide-react";
 import type { ListingCategory } from "@/lib/types";
+import { BLUR_DATA_URL } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 /**
  * Cover art for listings.
  *
- * If a real photo URL is provided (Vercel Blob in production), it renders an
- * optimized <Image>. Otherwise it renders a deterministic, on-brand gradient
- * cover — guaranteed to look intentional, zero network cost, Lighthouse-clean.
- * Swapping in photography later is just passing a `src`.
+ * Renders the real photo when a URL is provided and loads successfully, and
+ * gracefully degrades to a deterministic, on-brand gradient cover if the URL is
+ * missing or fails to load — so a broken/blocked image never surfaces to users.
  */
 
 const GRADIENTS = [
@@ -55,14 +58,20 @@ export function CoverImage({
   priority = false,
   variant = 0,
 }: CoverImageProps) {
-  if (src && src.startsWith("http")) {
+  const [failed, setFailed] = useState(false);
+  const hasPhoto = !!src && src.startsWith("http") && !failed;
+
+  if (hasPhoto) {
     return (
       <Image
-        src={src}
+        src={src as string}
         alt={alt}
         fill
         sizes={sizes}
         priority={priority}
+        placeholder="blur"
+        blurDataURL={BLUR_DATA_URL}
+        onError={() => setFailed(true)}
         className={cn("object-cover", className)}
       />
     );
@@ -78,10 +87,8 @@ export function CoverImage({
       className={cn("relative isolate overflow-hidden", className)}
       style={{ background: g }}
     >
-      {/* Soft light bloom */}
       <div className="absolute -right-10 -top-16 size-56 rounded-full bg-white/15 blur-3xl" />
       <div className="absolute -bottom-16 -left-10 size-56 rounded-full bg-white/10 blur-3xl" />
-      {/* Brand mark watermark */}
       <Image
         src="/brand/mark-white.png"
         alt=""
@@ -90,12 +97,7 @@ export function CoverImage({
         aria-hidden
         className="absolute -right-6 -bottom-4 w-2/3 opacity-[0.10]"
       />
-      {/* Category glyph */}
-      <Icon
-        className="absolute left-5 top-5 size-7 text-white/70"
-        strokeWidth={1.75}
-        aria-hidden
-      />
+      <Icon className="absolute left-5 top-5 size-7 text-white/70" strokeWidth={1.75} aria-hidden />
     </div>
   );
 }

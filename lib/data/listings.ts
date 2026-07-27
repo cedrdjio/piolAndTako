@@ -1,5 +1,35 @@
 import type { Host, Listing, ListingCategory, SearchParams } from "@/lib/types";
 import { SITE } from "@/lib/constants";
+import { unsplash } from "@/lib/images";
+
+/**
+ * Curated Unsplash photo IDs per listing. In production these become Vercel
+ * Blob URLs. `CoverImage` degrades gracefully to a branded gradient if any URL
+ * fails to load, so the UI stays clean even if a photo is unavailable.
+ */
+const PHOTOS: Record<string, string[]> = {
+  // Properties
+  p1: ["1613490493576-7fde63acd811", "1600596542815-ffad4c1539a9", "1600585154340-be6161a56a0c", "1600607687939-ce8a6c25118c"],
+  p2: ["1580587771525-78b9dba3b914", "1613977257363-707ba9348227", "1502672260266-1c1ef2d93688", "1600566753086-00f18fb6b3ea"],
+  p3: ["1512917774080-9991f1c4c750", "1600607687939-ce8a6c25118c", "1600566753086-00f18fb6b3ea", "1560448204-e02f11c3d0e2"],
+  p4: ["1502672260266-1c1ef2d93688", "1560448204-e02f11c3d0e2", "1502005097973-6a7082348e28", "1600585154340-be6161a56a0c"],
+  p5: ["1568605114967-8130f3a36994", "1512918728675-ed5a9ecdebfd", "1600047509807-ba8f99d2cdde", "1600585154340-be6161a56a0c"],
+  p6: ["1522708323590-d24dbb6b0267", "1502005097973-6a7082348e28", "1493809842364-78817add7ffb", "1560448204-e02f11c3d0e2"],
+  // Cars
+  c1: ["1606664515524-ed2f786a0bd6", "1614200187524-dc4b892acf16", "1519641471654-76ce0107ad1b"],
+  c2: ["1618843479313-40f8afb4b4d8", "1550355291-bbee04a92027", "1563720223185-11003d516935"],
+  c3: ["1533473359331-0135ef1b58bf", "1617469767053-d3b523a0b982", "1568844293986-8d0400bd4745"],
+  c4: ["1568844293986-8d0400bd4745", "1552519507-da3b142c6e3d", "1533473359331-0135ef1b58bf"],
+  c5: ["1555215695-3004980ad54e", "1603584173870-7f23fdae1b7a", "1550355291-bbee04a92027"],
+  c6: ["1541443131876-44b03de101c5", "1502877338535-766e1452684a", "1552519507-da3b142c6e3d"],
+  // Experiences
+  e1: ["1544551763-46a013bb70d5", "1507525428034-b723cf961d3e", "1476514525535-07fb3b4ae5f1"],
+  e2: ["1414235077428-338989a2e8c0", "1533105079780-92b9be482077", "1517248135467-4c7edcad34c4"],
+  e3: ["1551632811-561732d1e306", "1454496522488-7a8e488e8606", "1571863533956-01c88e79957e"],
+  e4: ["1540206395-68808572332f", "1544161515-4ab6ce6db874", "1600334129128-685c5582fd35"],
+  e5: ["1499781350541-7783f6c6a0c8", "1513364776144-60967b0f800f", "1531058020387-3be344556be6"],
+  e6: ["1470229722913-7c0e2dbbafd3", "1516450360452-9312f5e86fc7", "1566417713940-fe7c737a9ef2"],
+};
 
 /**
  * In-memory listing repository.
@@ -418,6 +448,7 @@ const LISTINGS: Listing[] = SEED.map((s) => ({
   slug: s.slug ?? makeSlug(s.title, s.id),
   currency: CURRENCY,
   country: COUNTRY,
+  images: (PHOTOS[s.id] ?? []).map((id) => unsplash(id, 1280)),
 }));
 
 // --- Repository API --------------------------------------------------------
