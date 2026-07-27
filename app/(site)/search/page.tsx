@@ -1,9 +1,7 @@
 import { Suspense } from "react";
 import { SearchX } from "lucide-react";
 import { Container } from "@/components/ui/container";
-import { SearchPanel } from "@/components/search/search-panel";
-import { CategoryTabs } from "@/components/search/category-tabs";
-import { SortSelect } from "@/components/search/sort-select";
+import { SearchFilters } from "@/components/search/search-filters";
 import { ListingCard, ListingCardSkeleton } from "@/components/listings/listing-card";
 import { Reveal } from "@/components/motion/reveal";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -34,6 +32,7 @@ function parse(sp: RawParams): SearchParams {
     guests: num("guests"),
     minPrice: num("minPrice"),
     maxPrice: num("maxPrice"),
+    instant: str("instant") === "1",
     sort: str("sort") as SearchParams["sort"],
   };
 }
@@ -61,27 +60,19 @@ export default async function SearchPage({
         ])}
       />
 
-      {/* Search + filters bar */}
-      <div className="border-b border-border bg-surface/60">
-        <Container className="py-6">
-          <SearchPanel defaultCategory={params.category ?? "property"} compact />
-          <div className="mt-5">
-            <Suspense fallback={<div className="h-10" />}>
-              <CategoryTabs />
-            </Suspense>
-          </div>
+      {/* Unified search controls: one category selector + advanced filters */}
+      <div className="sticky top-16 z-30 border-b border-border bg-background/85 backdrop-blur lg:top-[72px]">
+        <Container className="py-4">
+          <Suspense fallback={<div className="h-11" />}>
+            <SearchFilters />
+          </Suspense>
         </Container>
       </div>
 
       <Container className="py-8 lg:py-10">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-            {headline(params)}
-          </h1>
-          <Suspense fallback={null}>
-            <SortSelect />
-          </Suspense>
-        </div>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+          {headline(params)}
+        </h1>
 
         <Suspense key={JSON.stringify(params)} fallback={<ResultsSkeleton />}>
           <Results params={params} />

@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ShieldCheck, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ShieldCheck, Zap } from "lucide-react";
 import type { Listing } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Rating } from "@/components/ui/rating";
@@ -17,11 +18,18 @@ function daysBetween(a: string, b: string): number {
 }
 
 export function BookingWidget({ listing }: { listing: Listing }) {
+  const router = useRouter();
   const today = new Date().toISOString().slice(0, 10);
   const [checkin, setCheckin] = useState("");
   const [checkout, setCheckout] = useState("");
   const [guests, setGuests] = useState(1);
-  const [done, setDone] = useState(false);
+
+  function reserve() {
+    const params = new URLSearchParams({ listing: listing.slug, guests: String(guests) });
+    if (checkin) params.set("checkin", checkin);
+    if (checkout) params.set("checkout", checkout);
+    router.push(`/booking?${params.toString()}`);
+  }
 
   const perPerson = listing.priceUnit === "personne";
   const nights = perPerson ? 1 : daysBetween(checkin, checkout);
@@ -118,19 +126,8 @@ export function BookingWidget({ listing }: { listing: Listing }) {
         )}
       </div>
 
-      <Button
-        size="lg"
-        className="mt-4 w-full"
-        disabled={!ready || done}
-        onClick={() => setDone(true)}
-      >
-        {done ? (
-          <>
-            <Check className="size-5" /> Demande envoyée
-          </>
-        ) : (
-          "Réserver"
-        )}
+      <Button size="lg" className="mt-4 w-full" disabled={!ready} onClick={reserve}>
+        Réserver
       </Button>
 
       {ready && (

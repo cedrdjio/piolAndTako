@@ -21,9 +21,9 @@ import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Rating } from "@/components/ui/rating";
-import { CoverImage } from "@/components/ui/cover-image";
 import { Separator } from "@/components/ui/separator";
 import { FavoriteButton } from "@/components/listings/favorite-button";
+import { ListingGallery } from "@/components/listings/listing-gallery";
 import { BookingWidget } from "@/components/listings/booking-widget";
 import { ListingCarousel } from "@/components/listings/listing-carousel";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -167,33 +167,7 @@ export default async function ListingPage({
         </div>
 
         {/* Gallery */}
-        <div className="mt-6 grid gap-2 overflow-hidden rounded-[var(--radius-xl)] sm:grid-cols-4 sm:grid-rows-2">
-          <div className="relative aspect-[16/10] sm:col-span-2 sm:row-span-2 sm:aspect-auto">
-            <CoverImage
-              seed={listing.id}
-              category={listing.category}
-              src={listing.images[0]}
-              alt={listing.title}
-              priority
-              variant={0}
-              sizes="(max-width: 640px) 100vw, 50vw"
-              className="size-full"
-            />
-          </div>
-          {[1, 2, 3, 4].map((v) => (
-            <div key={v} className="relative hidden aspect-[4/3] sm:block">
-              <CoverImage
-                seed={listing.id}
-                category={listing.category}
-                src={listing.images[v]}
-                alt={`${listing.title} — vue ${v}`}
-                variant={v}
-                sizes="25vw"
-                className="size-full"
-              />
-            </div>
-          ))}
-        </div>
+        <ListingGallery listing={listing} />
 
         {/* Body */}
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px] lg:gap-14">

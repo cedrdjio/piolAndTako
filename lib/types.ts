@@ -75,6 +75,7 @@ export interface SearchParams {
   minPrice?: number;
   maxPrice?: number;
   guests?: number;
+  instant?: boolean;
   sort?: "recommended" | "price-asc" | "price-desc" | "rating";
   type?: string;
 }

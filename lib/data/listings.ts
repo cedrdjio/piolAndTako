@@ -487,6 +487,7 @@ export async function searchListings(params: SearchParams): Promise<Listing[]> {
   if (params.type) results = results.filter((l) => l.specs.type.toLowerCase() === params.type!.toLowerCase());
   if (params.minPrice != null) results = results.filter((l) => l.price >= params.minPrice!);
   if (params.maxPrice != null) results = results.filter((l) => l.price <= params.maxPrice!);
+  if (params.instant) results = results.filter((l) => l.instantBook);
   if (params.query) {
     const q = params.query.toLowerCase();
     results = results.filter(
